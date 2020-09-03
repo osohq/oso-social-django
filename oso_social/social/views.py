@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseNotAllowed, HttpResponseRedirect
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 
 from .models import Post
 from .forms import PostForm
@@ -13,6 +14,7 @@ def list_posts(request):
 
     return render(request, 'social/list.html', {'posts': posts})
 
+@login_required
 def new_post(request):
     if request.method == 'POST':
         form = PostForm(request.POST)
