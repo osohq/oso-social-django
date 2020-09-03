@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{% block title %}oso-social{% endblock %}</title>
+    </head>
+    <body>
+        {% if user.is_authenticated %}
+        <p>Welcome <em>@{{ user.username }}.</em></p>
+        {% endif %}
+        <a href={% url 'login' %}>Login</a>
+
+        {% block contents %}
+        {% endblock %}
+    </body>
+</html>

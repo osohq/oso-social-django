@@ -1,10 +1,12 @@
-<html>
-    <body>
-        <h1>New post</h1>
-        <form action="{% url 'new_post' %} " method="post">
-            {% csrf_token %}
-            {{ form }}
-            <input type="submit" value="Create post" />
-        </form>
-    </body>
-</html>
+{% extends 'social/base.html' %}
+
+{% block contents %}
+
+<h1>New post</h1>
+<form action="{% url 'new_post' %} " method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Create post" />
+</form>
+
+{% endblock %}
