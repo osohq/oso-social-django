@@ -1,0 +1,8 @@
+<html>
+    <body>
+        <h1>Feed</h1>
+        {% for post in posts %}
+            <p><em>@{{ post.created_by.username }}</em> {{ post.contents }}</p>
+        {% endfor %}
+    </body>
+</html>
