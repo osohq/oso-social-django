@@ -6,6 +6,6 @@ from .models import Post
 
 def list_posts(request):
     # Limit to 10 latest posts.
-    posts = Post.objects.all()[:10]
+    posts = Post.objects.all().order_by('-created_at')[:10]
 
     return render(request, 'social/list.html', {'posts': posts})
