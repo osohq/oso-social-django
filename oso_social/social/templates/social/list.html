@@ -7,4 +7,6 @@
     <p><em>@{{ post.created_by.username }}</em> {{ post.contents }} <em>{{ post.created_at|date:"SHORT_DATETIME_FORMAT" }}</em></p>
 {% endfor %}
 
+<a href="{% url 'new_post' %}">New post</a>
+
 {% endblock %}
