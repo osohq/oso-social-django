@@ -12,8 +12,8 @@ from .forms import PostForm
 # Create your views here.
 
 def list_posts(request):
-    # Limit to 20 latest posts.
-    posts = Post.objects.all().order_by('-created_at')[:20]
+    # Limit to 10 latest posts.
+    posts = Post.objects.all().order_by('-created_at')[:10]
 
     authorized_posts = []
     for post in posts:
