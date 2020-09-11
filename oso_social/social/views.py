@@ -18,7 +18,6 @@ def list_posts(request):
     authorized_posts = []
     for post in posts:
         try:
-            # TODO (dhatch): This is an issue with the authorize interface!
             authorize(request, post, action="view")
             authorized_posts.append(post)
         except PermissionDenied:
