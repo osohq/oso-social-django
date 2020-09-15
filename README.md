@@ -2,7 +2,7 @@
 
 This example repo contains a Twitter clone written using [Django](https://docs.djangoproject.com/en/3.1/) and [oso](https://www.osohq.com/).
 
-This example is explained [on the oso blog](https://www.osohq.com/posts/django-twitter-clone).
+This example is explained [on the oso blog](https://www.osohq.com/post/django-twitter-clone).
 
 # Running the example
 
