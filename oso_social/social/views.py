@@ -13,7 +13,7 @@ from .forms import PostForm
 
 def list_posts(request):
     posts = Post.objects.all().select_related('created_by').order_by('-created_at')
-    filter = authorize_type(request, action="view", resource_type="social::Post")
+    filter = authorize_type(request, action="view", resource_type=Post)
     authorized_posts = posts.filter(filter)
 
     return render(request, 'social/list.html', {'posts': authorized_posts})
