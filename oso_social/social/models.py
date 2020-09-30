@@ -3,7 +3,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
-    pass
+    def is_moderator(self):
+        return self.groups.filter(name="moderator").exists()
 
 class Post(models.Model):
     ACCESS_PUBLIC = 0
