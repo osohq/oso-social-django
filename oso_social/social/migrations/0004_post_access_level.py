@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('social', '0003_auto_20200903_2059'),
+        ("social", "0003_auto_20200903_2059"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='post',
-            name='access_level',
-            field=models.IntegerField(choices=[(0, 'Public'), (1, 'Private')], default=0),
+            model_name="post",
+            name="access_level",
+            field=models.IntegerField(
+                choices=[(0, "Public"), (1, "Private")], default=0
+            ),
         ),
     ]

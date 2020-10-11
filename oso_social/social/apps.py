@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 from django_oso.oso import Oso
 
+
 class Date:
     @classmethod
     def ten_min_ago(cls):
@@ -11,7 +12,7 @@ class Date:
 
 
 class SocialConfig(AppConfig):
-    name = 'social'
+    name = "social"
 
     def ready(self):
         print("ready")
