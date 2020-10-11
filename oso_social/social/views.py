@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 
-from django_oso.auth import authorize, authorize_type
+from django_oso.auth import authorize
 
 from .models import Post
 from .forms import PostForm
@@ -12,11 +12,11 @@ from .forms import PostForm
 # Create your views here.
 
 def list_posts(request):
-    posts = Post.objects.all().select_related('created_by').order_by('-created_at')
-    filter = authorize_type(request, action="view", resource_type=Post)
-    authorized_posts = posts.filter(filter)
+    posts = (Post.objects.authorize(request, action="view")
+        .select_related('created_by')
+        .order_by('-created_at'))
 
-    return render(request, 'social/list.html', {'posts': authorized_posts})
+    return render(request, 'social/list.html', {'posts': posts})
 
 @login_required
 def new_post(request):

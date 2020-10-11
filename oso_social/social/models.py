@@ -1,12 +1,13 @@
 from django.db import models
-
 from django.contrib.auth.models import AbstractUser
 
-class User(AbstractUser):
+from django_oso.models import AuthorizedModel
+
+class User(AbstractUser, AuthorizedModel):
     def is_moderator(self):
         return self.groups.filter(name="moderator").exists()
 
-class Post(models.Model):
+class Post(AuthorizedModel):
     ACCESS_PUBLIC = 0
     ACCESS_PRIVATE = 1
     ACCESS_LEVEL_CHOICES = [
