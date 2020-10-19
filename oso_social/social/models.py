@@ -21,4 +21,20 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        indexes = [models.Index(fields=('created_at',))]
+        indexes = [models.Index(fields=("created_at",))]
+
+
+class Role(models.Model):
+    name = models.CharField(max_length=140)
+
+    read = models.BooleanField()
+    create = models.BooleanField()
+    write = models.BooleanField()
+    delete = models.BooleanField()
+
+    created_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="%(class)s_role_created"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    users = models.ManyToManyField(User)

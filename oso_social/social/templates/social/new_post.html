@@ -1,12 +1,9 @@
-{% extends 'social/base.html' %}
-
-{% block contents %}
+{% extends 'social/base.html' %} {% block contents %}
 
 <h1>New post</h1>
 <form action="{% url 'new_post' %} " method="post">
-    {% csrf_token %}
-    {{ form }}
-    <input type="submit" value="Create post" />
+  {% csrf_token %} {{ form }}
+  <input type="submit" value="Create post" />
 </form>
 
 {% endblock %}

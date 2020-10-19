@@ -6,14 +6,17 @@ from django.core.exceptions import PermissionDenied
 
 from django_oso.auth import authorize
 
-from .models import Post
-from .forms import PostForm
+from .models import Post, Role
+from .forms import PostForm, RoleForm
 
 # Create your views here.
 
 def list_posts(request):
-    # Limit to 10 latest posts.
-    posts = Post.objects.all().order_by('-created_at')[:10]
+    posts = (
+        Post.objects.authorize(request, action="read")
+        .select_related("created_by")
+        .order_by("-created_at")
+    )
 
     authorized_posts = []
     for post in posts:
@@ -27,16 +30,32 @@ def list_posts(request):
 
 @login_required
 def new_post(request):
-    if request.method == 'POST':
-        form = PostForm(request.POST)
+    if request.method == "POST":
+        form = PostForm(request.POST, current_user=request.user)
         post = form.save(commit=False)
 
-        post.created_by = request.user
+        authorize(request, post, action="create")
         post.save()
-
-        return HttpResponseRedirect(reverse('index'))
-    elif request.method == 'GET':
-        form = PostForm()
-        return render(request, 'social/new_post.html', { 'form': form })
+        return HttpResponseRedirect(reverse("index"))
+    elif request.method == "GET":
+        form = PostForm(current_user=request.user)
+        return render(request, "social/new_post.html", {"form": form})
     else:
-        return HttpResponseNotAllowed(['GET', 'POST'])
+        return HttpResponseNotAllowed(["GET", "POST"])
+
+
+@login_required
+def new_role(request):
+    if request.method == "POST":
+        form = RoleForm(request.POST)
+        role = form.save(commit=False)
+
+        role.created_by = request.user
+        role.save()
+
+        return HttpResponseRedirect(reverse("index"))
+    elif request.method == "GET":
+        form = RoleForm()
+        return render(request, "social/new_role.html", {"form": form})
+    else:
+        return HttpResponseNotAllowed(["GET", "POST"])

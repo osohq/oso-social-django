@@ -8,4 +8,5 @@ This example is explained [on the oso blog](https://www.osohq.com/post/django-ac
 
 - Clone the repo
 - Install dependencies `pip install -r requirements.txt`
+- Run `./oso_social/manage.py migrate`
 - Run `./oso_social/manage.py runserver`
