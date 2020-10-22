@@ -1,11 +1,12 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 
-from .views import list_posts, new_post, new_role
+from .views import list_posts, new_post, new_role, delete_post
 
 urlpatterns = [
     path("", list_posts, name="index"),
     path("new/", new_post, name="new_post"),
+    path("delete/", delete_post, name="delete_post"),
     path("new_role/", new_role, name="new_role"),
     path(
         "login/",
