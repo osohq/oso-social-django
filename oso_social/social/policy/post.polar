@@ -4,11 +4,8 @@ allow(_actor, "read", post: social::Post) if
 
 # Allow a user to view their private posts.
 allow(actor: social::User, "read", post: social::Post) if
-    post.access_level = social::Post.ACCESS_PRIVATE and
+    # post.access_level = social::Post.ACCESS_PRIVATE and
     post.created_by = actor;
-
-allow(actor: social::User, "read", _: social::Post) if
-    actor.is_moderator();
 
 # Allow by role
 allow(user: social::User, action: String, post: social::Post) if
