@@ -5,10 +5,11 @@
 <p>
   <em>@{{ post.post.created_by.username }}</em> {{ post.post.contents }}
   <em>{{ post.post.created_at|date:"SHORT_DATETIME_FORMAT" }}</em>
-  {% if post.can_delete %} 
+  {% if post.can_delete %}
   <form action="{% url 'delete_post' %} " method="post">
     <input type="hidden" name="post_id" value={{post.post.id}} />
     <input type="submit" value="Delete" />
+    {% csrf_token %}
   </form>
   {% endif %}
 </p>

@@ -8,10 +8,9 @@ allow(actor: social::User, _action, post: social::Post) if
 
 # Allow by role
 allow(user: social::User, action: String, post: social::Post) if
-    action in ["read", "create", "write", "delete"] and
+    action in ["read", "create", "update", "delete"] and
     role = user.role_set.all() and
     role.created_by.id = post.created_by.id and
-    role.(action) = true;
-
-allow(user: social::User, "create", post: social::Post) if
-    post.created_by.id = user.id;
+    permission = role.permissions.all() and
+    permission.get_resource() = "post" and
+    permission.get_action() = action;

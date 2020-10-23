@@ -35,7 +35,7 @@ def new_post(request):
         form = PostForm(request.POST, current_user=request.user)
         post = form.save(commit=False)
 
-        authorize(request, post, action="create")
+        authorize(request, post, action="write")
         post.save()
         return HttpResponseRedirect(reverse("index"))
     elif request.method == "GET":
