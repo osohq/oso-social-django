@@ -57,18 +57,6 @@ def delete_post(request):
     else:
         return HttpResponseNotAllowed(["POST"])
 
-    #     form = PostForm(request.POST, current_user=request.user)
-    #     post = form.save(commit=False)
-
-    #     authorize(request, post, action="create")
-    #     post.save()
-    #     return HttpResponseRedirect(reverse("index"))
-    # elif request.method == "GET":
-    #     form = PostForm(current_user=request.user)
-    #     return render(request, "social/new_post.html", {"form": form})
-    # else:
-    #     return HttpResponseNotAllowed(["GET", "POST"])
-
 
 @login_required
 def new_role(request):

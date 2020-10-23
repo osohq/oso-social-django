@@ -2,6 +2,8 @@ from django.forms import ModelForm, ModelMultipleChoiceField
 from django.db.models import Q
 from .models import Post, Role, User, Permission
 
+from django_oso.oso import Oso
+
 
 class PostForm(ModelForm):
     class Meta:
@@ -17,23 +19,25 @@ class PostForm(ModelForm):
         # we get q by getting all of this_user's roles that have the "create" permission, and getting the "created_by"
         # field off of those roles
 
-        # TODO: do this with oso + partial eval, this is just re-implementing `allow(user, write, post)` in django orm manually.
-        # allow(user, write, post) if post.created_by = user;
-        # allow(user, action, post) if
-        #   role = user.role_set.all() and
-        #   role.created_by.id = post.created_by.id and
-        #   permission = role.permissions.all() and
-        #   permission.get_resource() = "post" and
-        #   permission.get_action() = "write";
-        # getting all the users current user can create posts for
-        users = self.current_user.role_set.filter(
-            permissions__resource=Permission.RESOURCE_POST,
-            permissions__action=Permission.ACTION_CREATE,
-        ).values_list("created_by")
-        # OR clause to let the current user create posts for themselves too
-        q = User.objects.filter(Q(id__in=users) | Q(id=self.current_user.id))
+        # TODO: do this with oso + partial eval, where you can just pass in the post partial
+        users = User.objects.all()
 
-        self.fields["created_by"].queryset = q
+        authorized_to_create_for = [self.current_user.id]
+        for user in users:
+            if list(
+                Oso.query_rule(
+                    "allow_by_model",
+                    self.current_user,
+                    "create",
+                    {"type": "post", "owner": user},
+                )
+            ):
+                authorized_to_create_for.append(user.id)
+        print(authorized_to_create_for)
+
+        self.fields["created_by"].queryset = User.objects.filter(
+            id__in=authorized_to_create_for
+        )
 
 
 class RoleForm(ModelForm):

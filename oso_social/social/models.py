@@ -32,7 +32,11 @@ class Role(models.Model):
     name = models.CharField(max_length=140)
 
     created_by = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="%(class)s_role_created"
+        User,
+        on_delete=models.CASCADE,
+        related_name="%(class)s_role_created",
+        null=True,
+        blank=True,
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
