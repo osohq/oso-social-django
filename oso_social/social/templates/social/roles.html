@@ -1,0 +1,33 @@
+{% extends 'social/base.html' %} {% block contents %}
+
+<h1>Roles</h1>
+{% for role in roles %}
+<p>
+    <h3>{{ role.name }} </h2>
+    {% for permission in role.permissions.all %}
+    <p>
+        <p>
+        {{ permission.get_action }} on {{ permission.get_resource }}
+        </p>
+        <p>
+            <form action="{% url 'delete_permission' role_id=role.id %} " method="post">
+                <input type="hidden" name="role_id" value={{role.id}} />
+                <input type="hidden" name="permission_id" value={{permission.id}} />
+                <input type="submit" value="Delete Permission" />
+                {% csrf_token %}
+              </form>
+            </p>
+    </p>
+    {% endfor %}
+    <a href="{% url 'new_permission' role_id=role.id %}">Add Permission</a>
+    <form action="{% url 'delete_role' %} " method="post">
+        <input type="hidden" name="role_id" value={{role.id}} />
+        <input type="submit" value="Delete Role" />
+        {% csrf_token %}
+    </form>
+</p>
+{% endfor %}
+
+<a href="{% url 'new_role' %}">New Role</a>
+
+{% endblock %}

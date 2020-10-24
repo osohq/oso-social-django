@@ -7,14 +7,12 @@ from django.core.exceptions import PermissionDenied
 from django_oso.auth import authorize
 from django_oso.oso import Oso
 
-from .models import Post, Role
-from .forms import PostForm, RoleForm
-
-# Create your views here.
+from .models import Post, Role, Permission
+from .forms import PostForm, RoleForm, PermissionForm
 
 
 def list_posts(request):
-    # Limit to 10 latest posts.
+    # Limit to 100 latest posts.
     posts = Post.objects.all().order_by("-created_at")[:100]
 
     authorized_posts = []
@@ -27,6 +25,12 @@ def list_posts(request):
             continue
 
     return render(request, "social/list.html", {"posts": authorized_posts})
+
+
+@login_required
+def list_roles(request):
+    roles = Role.objects.filter(created_by=request.user)
+    return render(request, "social/roles.html", {"roles": roles})
 
 
 @login_required
@@ -67,9 +71,55 @@ def new_role(request):
         role.created_by = request.user
         role.save()
 
-        return HttpResponseRedirect(reverse("index"))
+        return HttpResponseRedirect(reverse("list_roles"))
     elif request.method == "GET":
         form = RoleForm()
         return render(request, "social/new_role.html", {"form": form})
     else:
         return HttpResponseNotAllowed(["GET", "POST"])
+
+
+@login_required
+def delete_role(request):
+    if request.method == "POST":
+        current_user = request.user
+        role_id = request.POST.get("role_id")
+        role = Role.objects.get(id=role_id)
+        authorize(request, role, action="delete")
+        role.delete()
+        return HttpResponseRedirect(reverse("list_roles"))
+    else:
+        return HttpResponseNotAllowed(["POST"])
+
+
+@login_required
+def new_permission(request, role_id):
+    if request.method == "POST":
+        form = PermissionForm(request.POST)
+        permission = form.save(commit=False)
+        role = Role.objects.get(id=role_id)
+
+        permission.role = role
+        permission.save()
+
+        return HttpResponseRedirect(reverse("list_roles"))
+    elif request.method == "GET":
+        form = PermissionForm()
+        return render(
+            request, "social/new_permission.html", {"form": form, "role_id": role_id}
+        )
+    else:
+        return HttpResponseNotAllowed(["GET", "POST"])
+
+
+@login_required
+def delete_permission(request, role_id):
+    if request.method == "POST":
+        permission_id = request.POST.get("permission_id")
+        permission = Permission.objects.get(id=permission_id)
+        role = Role.objects.get(id=role_id)
+        authorize(request, role, action="delete")
+        permission.delete()
+        return HttpResponseRedirect(reverse("list_roles"))
+    else:
+        return HttpResponseNotAllowed(["POST"])

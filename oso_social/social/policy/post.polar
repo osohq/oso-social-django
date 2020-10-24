@@ -2,10 +2,13 @@
 allow(_actor, "read", post: social::Post) if
     post.access_level = social::Post.ACCESS_PUBLIC;
 
-# Allow a user to view their private posts.
+# Allow a user to manage their posts.
 allow(actor: social::User, _action, post: social::Post) if
     post.created_by = actor;
 
+# Allow a user to manage their roles.
+allow(actor: social::User, _action, role: social::Role) if
+    role.created_by = actor;
 
 # hack around partial eval, specific to "create" when you don't have an actual instance, the Dictionary resource
 # is a poor man's Partial object

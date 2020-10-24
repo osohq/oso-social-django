@@ -1,0 +1,10 @@
+{% extends 'social/base.html' %} {% block contents %}
+
+<h1>New Permission</h1>
+<form action="{% url 'new_permission' role_id=role_id %} " method="post">
+  {% csrf_token %}
+  {{ form }} 
+  <input type="submit" value="Create permission" />
+</form>
+
+{% endblock %}

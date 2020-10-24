@@ -44,3 +44,9 @@ class RoleForm(ModelForm):
     class Meta:
         model = Role
         fields = ["name", "users"]
+
+
+class PermissionForm(ModelForm):
+    class Meta:
+        model = Permission
+        fields = ["action", "resource"]
