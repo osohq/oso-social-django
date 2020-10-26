@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 
-from django_oso.auth import authorize
+from django_oso.auth import authorize, authorize_model
 from django_oso.oso import Oso
 
 from .models import Post, Role, Permission
@@ -35,15 +35,28 @@ def list_roles(request):
 
 @login_required
 def new_post(request):
+    # this_user is the user trying to create the post
+    # we get the users they are allowed to create a post for
+    # by getting all of this_user's roles that have the "create" permission,
+    # and getting the "created_by" field off of those roles
+
+    # Use constraint propagation to get a filter that specifies who this user is allowed to create posts for
+    authorized_to_create_for = []
+    filter = authorize_model(None, Post, actor=request.user, action="create")
+    for constraint in filter.children:
+        field, value = constraint
+        if field == "created_by":
+            authorized_to_create_for.append(value.id)
+
     if request.method == "POST":
-        form = PostForm(request.POST, current_user=request.user)
+        form = PostForm(request.POST, authorized_to_create_for=authorized_to_create_for)
         post = form.save(commit=False)
 
         authorize(request, post, action="create")
         post.save()
         return HttpResponseRedirect(reverse("index"))
     elif request.method == "GET":
-        form = PostForm(current_user=request.user)
+        form = PostForm(authorized_to_create_for=authorized_to_create_for)
         return render(request, "social/new_post.html", {"form": form})
     else:
         return HttpResponseNotAllowed(["GET", "POST"])
@@ -52,7 +65,6 @@ def new_post(request):
 @login_required
 def delete_post(request):
     if request.method == "POST":
-        current_user = request.user
         post_id = request.POST.get("post_id")
         post = Post.objects.get(id=post_id)
         authorize(request, post, action="delete")
@@ -74,6 +86,7 @@ def new_role(request):
 
         authorize(request, role, action="create")
         role.save()
+        form.save_m2m()
         return HttpResponseRedirect(reverse("list_roles"))
     elif request.method == "GET":
         form = RoleForm()
@@ -85,7 +98,6 @@ def new_role(request):
 @login_required
 def delete_role(request):
     if request.method == "POST":
-        current_user = request.user
         role_id = request.POST.get("role_id")
         role = Role.objects.get(id=role_id)
         authorize(request, role, action="delete")

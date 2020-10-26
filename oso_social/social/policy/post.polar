@@ -9,6 +9,14 @@ allow(_actor, "read", post: social::Post) if
 allow(actor: social::User, _action, post: social::Post) if
     post.created_by = actor;
 
+allow(user: social::User, action: String, post: social::Post) if
+    role = user.role_set.all() and
+    role.created_by =  post.created_by and
+    permission = role.permissions.all() and
+    permission.get_resource() = "post" and
+    permission.get_action() = action;
+
+
 ## ROLE RESOURCES
 
 # Allow a user to manage their roles.
@@ -19,13 +27,6 @@ allow(actor: social::User, _action, role: social::Role) if
 allow(actor: social::User, action, permission: social::Permission) if
     action in ["create", "delete"] and
     allow(actor, "update", permission.role);
-
-allow(user: social::User, action: String, post: social::Post) if
-    role = user.role_set.all() and
-    role.created_by =  post.created_by and
-    permission = role.permissions.all() and
-    permission.get_resource() = "post" and
-    permission.get_action() = action;
 
 
 # Built-in roles
