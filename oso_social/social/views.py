@@ -39,7 +39,7 @@ def new_post(request):
         form = PostForm(request.POST, current_user=request.user)
         post = form.save(commit=False)
 
-        authorize(request, post, action="write")
+        authorize(request, post, action="create")
         post.save()
         return HttpResponseRedirect(reverse("index"))
     elif request.method == "GET":
@@ -68,9 +68,12 @@ def new_role(request):
         form = RoleForm(request.POST)
         role = form.save(commit=False)
 
-        role.created_by = request.user
-        role.save()
+        role.created_by = (
+            request.user._wrapped if hasattr(request.user, "_wrapped") else request.user
+        )
 
+        authorize(request, role, action="create")
+        role.save()
         return HttpResponseRedirect(reverse("list_roles"))
     elif request.method == "GET":
         form = RoleForm()
@@ -100,6 +103,8 @@ def new_permission(request, role_id):
         role = Role.objects.get(id=role_id)
 
         permission.role = role
+
+        authorize(request, permission, action="create")
         permission.save()
 
         return HttpResponseRedirect(reverse("list_roles"))
@@ -118,7 +123,7 @@ def delete_permission(request, role_id):
         permission_id = request.POST.get("permission_id")
         permission = Permission.objects.get(id=permission_id)
         role = Role.objects.get(id=role_id)
-        authorize(request, role, action="delete")
+        authorize(request, permission, action="delete")
         permission.delete()
         return HttpResponseRedirect(reverse("list_roles"))
     else:
