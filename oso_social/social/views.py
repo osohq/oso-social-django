@@ -140,3 +140,8 @@ def delete_permission(request, role_id):
         return HttpResponseRedirect(reverse("list_roles"))
     else:
         return HttpResponseNotAllowed(["POST"])
+
+
+@login_required
+def me(request):
+    return render(request, "social/me.html", {"me": request.user})

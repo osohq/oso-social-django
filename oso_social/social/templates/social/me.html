@@ -1,0 +1,12 @@
+{% extends 'social/base.html' %} {% block contents %}
+
+<h1>{{me.username}}</h1>
+<h2>Assigned Roles</h2>
+<ul>
+{% for role in me.role_set.all %}
+<li>
+    {{role}}
+</li>
+{% endfor %}
+</ul>
+{% endblock %}

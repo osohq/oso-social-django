@@ -29,6 +29,12 @@ class Post(AuthorizedModel):
     class Meta:
         indexes = [models.Index(fields=("created_at",))]
 
+    def __str__(self):
+        if len(self.contents) > 20:
+            return f'{self.created_by.username} | "{self.contents[:20]}..."'
+        else:
+            return f'{self.created_by.username} | "{self.contents}"'
+
 
 class Role(models.Model):
     name = models.CharField(max_length=140)
@@ -43,6 +49,12 @@ class Role(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     users = models.ManyToManyField(User)
+
+    def __str__(self):
+        if self.created_by:
+            return f"{self.created_by.username} | {self.name}"
+        else:
+            return f"{self.name}"
 
 
 class Permission(models.Model):
@@ -70,3 +82,6 @@ class Permission(models.Model):
 
     def get_resource(self):
         return dict(self.RESOURCES)[self.resource]
+
+    def __str__(self):
+        return f"{self.role} | {self.get_action()} on {self.get_resource()}"

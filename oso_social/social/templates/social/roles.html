@@ -3,22 +3,28 @@
 <h1>Roles</h1>
 {% for role in roles %}
 <p>
-    <h3>{{ role.name }} </h2>
-    {% for permission in role.permissions.all %}
-    <p>
-        <p>
-        {{ permission.get_action }} on {{ permission.get_resource }}
-        </p>
-        <p>
-            <form action="{% url 'delete_permission' role_id=role.id %} " method="post">
-                <input type="hidden" name="role_id" value={{role.id}} />
-                <input type="hidden" name="permission_id" value={{permission.id}} />
-                <input type="submit" value="Delete Permission" />
-                {% csrf_token %}
-              </form>
-            </p>
-    </p>
-    {% endfor %}
+    <h2>{{ role.name }} </h2>
+    <h3>Members</h3>
+        <ul>
+            {% for member in role.users.all %}
+            <li>{{member.username}}</li>
+            {% endfor %}
+        </ul>
+    
+    <h3>Permissions</h3>
+        <ul>
+            {% for permission in role.permissions.all %}
+            <li>
+            {{ permission.get_action }} on {{ permission.get_resource }}
+                <form action="{% url 'delete_permission' role_id=role.id %} " method="post">
+                    <input type="hidden" name="role_id" value={{role.id}} />
+                    <input type="hidden" name="permission_id" value={{permission.id}} />
+                    <input type="submit" value="Delete Permission" />
+                    {% csrf_token %}
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
     <a href="{% url 'new_permission' role_id=role.id %}">Add Permission</a>
     <form action="{% url 'delete_role' %} " method="post">
         <input type="hidden" name="role_id" value={{role.id}} />

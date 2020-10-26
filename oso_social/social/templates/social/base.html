@@ -9,7 +9,9 @@
         <a href={% url 'logout' %}>Logout</a>
         {% endif %}
         <a href={% url 'login' %}>Login</a>
-
+        <a href={% url 'index' %}>Feed</a>
+        <a href={% url 'me' %}>Profile</a>
+        <a href={% url 'list_roles' %}>Roles</a>
         {% block contents %}
         {% endblock %}
     </body>

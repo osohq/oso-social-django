@@ -10,6 +10,7 @@ from .views import (
     delete_role,
     new_permission,
     delete_permission,
+    me,
 )
 
 
@@ -32,4 +33,5 @@ urlpatterns = [
         name="login",
     ),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+    path("me", me, name="me"),
 ]
