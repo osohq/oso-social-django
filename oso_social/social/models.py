@@ -59,7 +59,7 @@ class Permission(models.Model):
 
     RESOURCE_POST = 0
     RESOURCE_ROLE = 1
-    RESOURCES = [(RESOURCE_POST, "post"), (RESOURCE_ROLE, "role")]
+    RESOURCES = [(RESOURCE_POST, "post")]
 
     action = models.IntegerField(choices=ACTIONS)
     resource = models.IntegerField(choices=RESOURCES)
