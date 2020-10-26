@@ -2,12 +2,14 @@ from django.db import models
 
 from django.contrib.auth.models import AbstractUser
 
+from django_oso.models import AuthorizedModel
+
 
 class User(AbstractUser):
     pass
 
 
-class Post(models.Model):
+class Post(AuthorizedModel):
     ACCESS_PUBLIC = 0
     ACCESS_PRIVATE = 1
     ACCESS_LEVEL_CHOICES = [

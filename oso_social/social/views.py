@@ -13,18 +13,18 @@ from .forms import PostForm, RoleForm, PermissionForm
 
 def list_posts(request):
     # Limit to 100 latest posts.
-    posts = Post.objects.all().order_by("-created_at")[:100]
+    authorized_posts = (
+        Post.objects.all()
+        .authorize(request, action="read")
+        .order_by("-created_at")[:100]
+    )
 
-    authorized_posts = []
-    for post in posts:
-        try:
-            authorize(request, post, action="read")
-            can_delete = Oso.is_allowed(request.user, "delete", post)
-            authorized_posts.append({"post": post, "can_delete": can_delete})
-        except PermissionDenied:
-            continue
+    posts = [
+        {"post": post, "can_delete": Oso.is_allowed(request.user, "delete", post)}
+        for post in authorized_posts
+    ]
 
-    return render(request, "social/list.html", {"posts": authorized_posts})
+    return render(request, "social/list.html", {"posts": posts})
 
 
 @login_required

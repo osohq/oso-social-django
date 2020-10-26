@@ -9,13 +9,18 @@ allow(_actor, "read", post: social::Post) if
 allow(actor: social::User, _action, post: social::Post) if
     post.created_by = actor;
 
+# Dynamic roles
+# TODO: make this rule generic by adding a base model that has a name and created_by field
 allow(user: social::User, action: String, post: social::Post) if
-    role = user.role_set.all() and
-    role.created_by =  post.created_by and
-    permission = role.permissions.all() and
-    permission.get_resource() = "post" and
-    permission.get_action() = action;
+    allow_by_custom_role(user, action, "post", post);
 
+# allow based on custom roles
+allow_by_custom_role(user: social::User, action: String, resource_name: String, resource) if
+    role = user.role_set.all() and
+    role.created_by =  resource.created_by and
+    permission = role.permissions.all() and
+    permission.get_resource() = resource_name and
+    permission.get_action() = action;
 
 ## ROLE RESOURCES
 
@@ -35,4 +40,4 @@ allow(user: social::User, action: String, resource) if
     allow_role(role, action, resource);
 
 allow_role(role: social::Role{name: "Moderator"}, "delete", _resource: social::Post) if
-    not role.created_by matches social::User;
+    role.created_by = None;
