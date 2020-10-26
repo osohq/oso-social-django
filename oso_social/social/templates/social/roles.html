@@ -1,7 +1,9 @@
 {% extends 'social/base.html' %} {% block contents %}
 
+
 <h1>Roles</h1>
 {% for role in roles %}
+<div>
 <p>
     <h2>{{ role.name }} </h2>
     <h3>Members</h3>
@@ -32,6 +34,7 @@
         {% csrf_token %}
     </form>
 </p>
+</div>
 {% endfor %}
 
 <a href="{% url 'new_role' %}">New Role</a>
