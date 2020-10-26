@@ -20,23 +20,12 @@ allow(actor: social::User, action, permission: social::Permission) if
     action in ["create", "delete"] and
     allow(actor, "update", permission.role);
 
-# hack around partial eval, specific to "create" when you don't have an actual instance, the Dictionary resource
-# is a poor man's Partial object
-allow_by_model(user: social::User, action: String, resource: {type: resource_type, owner: resource_owner}) if
-    # type checking
-    resource_type matches String and
-    resource_owner matches social::User and
-    action in ["read", "create", "update", "delete"] and
-
-    # logic
-    role = user.role_set.all() and
-    role.created_by =  resource_owner and
-    permission = role.permissions.all() and
-    permission.get_resource() = resource_type and
-    permission.get_action() = action;
-
 allow(user: social::User, action: String, post: social::Post) if
-    allow_by_model(user, action, {type: "post", owner: post.created_by});
+    role = user.role_set.all() and
+    role.created_by =  post.created_by and
+    permission = role.permissions.all() and
+    permission.get_resource() = "post" and
+    permission.get_action() = action;
 
 
 # Built-in roles

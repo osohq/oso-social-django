@@ -2,7 +2,7 @@ from django.forms import ModelForm, ModelMultipleChoiceField
 from django.db.models import Q
 from .models import Post, Role, User, Permission
 
-from django_oso.oso import Oso
+from django_oso.auth import authorize_model
 
 
 class PostForm(ModelForm):
@@ -19,20 +19,15 @@ class PostForm(ModelForm):
         # we get q by getting all of this_user's roles that have the "create" permission, and getting the "created_by"
         # field off of those roles
 
-        # TODO: do this with oso + partial eval, where you can just pass in the post partial
-        users = User.objects.all()
+        # Use constraint propagation to get a filter, which includes who this user is allowed to create posts for
+        authorized_to_create_for = []
+        filter = authorize_model(None, Post, actor=self.current_user, action="create")
 
-        authorized_to_create_for = [self.current_user.id]
-        for user in users:
-            if list(
-                Oso.query_rule(
-                    "allow_by_model",
-                    self.current_user,
-                    "create",
-                    {"type": "post", "owner": user},
-                )
-            ):
-                authorized_to_create_for.append(user.id)
+        for constraint in filter.children:
+            field, value = constraint
+            if field == "created_by":
+                authorized_to_create_for.append(value.id)
+
         print(authorized_to_create_for)
 
         self.fields["created_by"].queryset = User.objects.filter(
