@@ -6,21 +6,21 @@ from .models import Post, Role, User, Permission
 class PostForm(ModelForm):
     class Meta:
         model = Post
-        fields = ["contents", "access_level", "created_by"]
-
-    def __init__(self, *args, **kwargs):
-        self.authorized_to_create_for = kwargs.pop("authorized_to_create_for")
-        super().__init__(*args, **kwargs)
-
-        self.fields["created_by"].queryset = User.objects.filter(
-            id__in=self.authorized_to_create_for
-        )
+        fields = ["contents", "access_level"]
 
 
 class RoleForm(ModelForm):
     class Meta:
         model = Role
         fields = ["name", "users"]
+
+    def __init__(self, *args, **kwargs):
+        self.organization = kwargs.pop("organization")
+        super().__init__(*args, **kwargs)
+
+        self.fields["users"].queryset = User.objects.filter(
+            organization=self.organization
+        )
 
 
 class PermissionForm(ModelForm):

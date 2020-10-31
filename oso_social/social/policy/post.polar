@@ -1,43 +1,46 @@
+## BUILT-IN RULES
+allow(user, action, resource) if
+    user_in_role(user, role) and
+    role_applies_to_resource(role, resource) and
+    role_allow(user, role, action, resource);
 
-## POST RESOURCES
+## RBAC
+
+user_in_role(user: social::User, role) if
+    role = user.role_set.all();
+
+role_applies_to_resource(role: social::Role, resource: String);
+role_applies_to_resource(role: social::Role{organization: org}, resource: social::Post{organization: org});
+role_applies_to_resource(role: social::Role{organization: org}, resource: social::Role{organization: org});
+
+# built-in roles
+role_allow(_user: social::User, _role: social::Role{name: "Moderator", custom: false}, "delete", _resource: social::Post);
+role_allow(_user: social::User, _role: social::Role{name: "Moderator", custom: false}, _action, resource: social::Role);
+role_allow(_user: social::User, _role: social::Role{name: "Moderator", custom: false}, "GET", "roles");
+
+# custom roles
+resource_kind(_resource: social::Role, "role");
+resource_kind(_resource: social::Post, "post");
+
+role_allow(_user: social::User, role: social::Role, action: String, resource) if
+    role.custom and
+    permission = role.permissions.all() and
+    kind = permission.get_resource() and
+    resource_kind(resource, kind) and
+    permission.get_action() = action;
+
+## ALLOW RULES
 
 # Allow anyone to view any public posts.
-allow(_actor, "read", post: social::Post) if
-    post.access_level = social::Post.ACCESS_PUBLIC;
+allow(actor: social::User, "read", post: social::Post) if
+    post.access_level = social::Post.ACCESS_PUBLIC and
+    actor.organization = post.organization;
 
 # Allow a user to manage their posts.
 allow(actor: social::User, _action, post: social::Post) if
     post.created_by = actor;
 
-# Dynamic roles
-# TODO: make this rule generic by adding a base model that has a name and created_by field
-allow(user: social::User, action: String, post: social::Post) if
-    allow_by_custom_role(user, action, "post", post);
-
-# allow based on custom roles
-allow_by_custom_role(user: social::User, action: String, resource_name: String, resource) if
-    role = user.role_set.all() and
-    role.created_by =  resource.created_by and
-    permission = role.permissions.all() and
-    permission.get_resource() = resource_name and
-    permission.get_action() = action;
-
-## ROLE RESOURCES
-
-# Allow a user to manage their roles.
-allow(actor: social::User, _action, role: social::Role) if
-    role.created_by = actor;
-
-# A user is allowed to delete a permission if they are allowed to update a role
+# A user is allowed to create/delete a permission if they are allowed to update the role
 allow(actor: social::User, action, permission: social::Permission) if
     action in ["create", "delete"] and
     allow(actor, "update", permission.role);
-
-
-# Built-in roles
-allow(user: social::User, action: String, resource) if
-    role = user.role_set.all() and
-    allow_role(role, action, resource);
-
-allow_role(role: social::Role{name: "Moderator"}, "delete", _resource: social::Post) if
-    role.created_by = None;

@@ -5,8 +5,12 @@ from django.contrib.auth.models import AbstractUser
 from django_oso.models import AuthorizedModel
 
 
+class Organization(models.Model):
+    name = models.CharField(max_length=140)
+
+
 class User(AbstractUser):
-    pass
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, default=1)
 
 
 class Post(AuthorizedModel):
@@ -26,6 +30,8 @@ class Post(AuthorizedModel):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+
     class Meta:
         indexes = [models.Index(fields=("created_at",))]
 
@@ -36,28 +42,20 @@ class Post(AuthorizedModel):
             return f'{self.created_by.username} | "{self.contents}"'
 
 
-class Role(models.Model):
+class Role(AuthorizedModel):
     name = models.CharField(max_length=140)
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
-    created_by = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="%(class)s_role_created",
-        null=True,
-        blank=True,
-    )
+    custom = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     users = models.ManyToManyField(User)
 
     def __str__(self):
-        if self.created_by:
-            return f"{self.created_by.username} | {self.name}"
-        else:
-            return f"{self.name}"
+        return f"{self.name} for {self.organization.name}"
 
 
-class Permission(models.Model):
+class Permission(AuthorizedModel):
     ACTION_READ = 0
     ACTION_CREATE = 1
     ACTION_UPDATE = 2

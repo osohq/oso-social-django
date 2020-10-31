@@ -13,50 +13,48 @@ from .forms import PostForm, RoleForm, PermissionForm
 
 def list_posts(request):
     # Limit to 100 latest posts.
-    authorized_posts = (
-        Post.objects.all()
-        .authorize(request, action="read")
-        .order_by("-created_at")[:100]
-    )
+    authorized_posts = []
+    for post in Post.objects.all().order_by("-created_at")[:100]:
+        try:
+            authorize(request, action="read", resource=post)
+        except:
+            continue
+        authorized_posts.append(
+            {"post": post, "can_delete": Oso.is_allowed(request.user, "delete", post)}
+        )
 
-    posts = [
-        {"post": post, "can_delete": Oso.is_allowed(request.user, "delete", post)}
-        for post in authorized_posts
-    ]
-
-    return render(request, "social/list.html", {"posts": posts})
+    return render(request, "social/list.html", {"posts": authorized_posts})
 
 
 @login_required
 def list_roles(request):
-    roles = Role.objects.filter(created_by=request.user)
-    return render(request, "social/roles.html", {"roles": roles})
+    authorized_roles = []
+    for role in Role.objects.all():
+        try:
+            authorize(request, action="read", resource=role)
+        except:
+            continue
+        authorized_roles.append(role)
+
+    return render(request, "social/roles.html", {"roles": authorized_roles})
 
 
 @login_required
 def new_post(request):
-    # this_user is the user trying to create the post
-    # we get the users they are allowed to create a post for
-    # by getting all of this_user's roles that have the "create" permission,
-    # and getting the "created_by" field off of those roles
-
-    # Use constraint propagation to get a filter that specifies who this user is allowed to create posts for
-    authorized_to_create_for = []
-    filter = authorize_model(None, Post, actor=request.user, action="create")
-    for constraint in filter.children:
-        field, value = constraint
-        if field == "created_by":
-            authorized_to_create_for.append(value.id)
 
     if request.method == "POST":
-        form = PostForm(request.POST, authorized_to_create_for=authorized_to_create_for)
+        form = PostForm(request.POST)
         post = form.save(commit=False)
+        post.created_by = (
+            request.user._wrapped if hasattr(request.user, "_wrapped") else request.user
+        )
+        post.organization = request.user.organization
 
         authorize(request, post, action="create")
         post.save()
         return HttpResponseRedirect(reverse("index"))
     elif request.method == "GET":
-        form = PostForm(authorized_to_create_for=authorized_to_create_for)
+        form = PostForm()
         return render(request, "social/new_post.html", {"form": form})
     else:
         return HttpResponseNotAllowed(["GET", "POST"])
@@ -77,19 +75,20 @@ def delete_post(request):
 @login_required
 def new_role(request):
     if request.method == "POST":
-        form = RoleForm(request.POST)
+        form = RoleForm(request.POST, organization=request.user.organization)
         role = form.save(commit=False)
 
         role.created_by = (
             request.user._wrapped if hasattr(request.user, "_wrapped") else request.user
         )
+        role.organization = request.user.organization
 
         authorize(request, role, action="create")
         role.save()
         form.save_m2m()
         return HttpResponseRedirect(reverse("list_roles"))
     elif request.method == "GET":
-        form = RoleForm()
+        form = RoleForm(organization=request.user.organization)
         return render(request, "social/new_role.html", {"form": form})
     else:
         return HttpResponseNotAllowed(["GET", "POST"])
@@ -145,3 +144,9 @@ def delete_permission(request, role_id):
 @login_required
 def me(request):
     return render(request, "social/me.html", {"me": request.user})
+
+
+def oso_context_processor(request):
+    """Pass authZ context into templates."""
+    is_moderator = Oso.is_allowed(request.user, "GET", "roles")
+    return {"is_moderator": is_moderator}

@@ -5,14 +5,14 @@ from django.db import migrations
 
 def load_builtin_roles(apps, schema_editor):
     Role = apps.get_model("social", "Role")
-    role = Role.objects.create(name="Moderator", created_by=None)
+    role = Role.objects.create(name="Moderator", custom=False)
     role.save()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("social", "0007_auto_20201023_2030"),
+        ("social", "0008_auto_20201030_1742"),
     ]
 
     operations = [
