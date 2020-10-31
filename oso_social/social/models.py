@@ -8,6 +8,9 @@ from django_oso.models import AuthorizedModel
 class Organization(models.Model):
     name = models.CharField(max_length=140)
 
+    def __str__(self):
+        return f"{self.name}"
+
 
 class User(AbstractUser):
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, default=1)

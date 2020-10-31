@@ -8,13 +8,20 @@ from django.contrib.auth.hashers import make_password
 
 def load_seed_users(apps, schema_editor):
     Organization = apps.get_model("social", "Organization")
-    oso = Organization.objects.get(name="oso")
+    oso = Organization.objects.create(name="oso")
+    oso.save()
     monstersinc = Organization.objects.create(name="monstersinc")
     monstersinc.save()
 
     Role = apps.get_model("social", "Role")
-    role = Role.objects.create(name="Moderator", custom=False, organization=monstersinc)
-    role.save()
+    oso_moderator = Role.objects.create(
+        name="Moderator", custom=False, organization=oso
+    )
+    oso_moderator.save()
+    monsters_moderator = Role.objects.create(
+        name="Moderator", custom=False, organization=monstersinc
+    )
+    monsters_moderator.save()
 
     User = apps.get_model("social", "User")
     user = User.objects.create(
@@ -27,6 +34,16 @@ def load_seed_users(apps, schema_editor):
 
     user = User.objects.create(
         username="dave", email="dave@osohq.com", password=make_password("something123")
+    )
+    user.organization = oso
+    user.save()
+
+    oso_moderator.users.add(user)
+
+    user = User.objects.create(
+        username="leina",
+        email="leina@osohq.com",
+        password=make_password("something123"),
     )
     user.organization = oso
     user.save()
@@ -47,11 +64,13 @@ def load_seed_users(apps, schema_editor):
     user.organization = monstersinc
     user.save()
 
+    monsters_moderator.users.add(user)
+
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("social", "0013_auto_20201030_2111"),
+        ("social", "0001_initial"),
     ]
 
     operations = [
