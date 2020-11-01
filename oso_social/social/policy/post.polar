@@ -6,22 +6,22 @@ allow(user, action, resource) if
 
 ## RBAC
 
+# Get a user's roles
 user_in_role(user: social::User, role) if
     role = user.role_set.all();
 
-role_applies_to_resource(role: social::Role, resource: String);
 role_applies_to_resource(role: social::Role{organization: org}, resource: social::Post{organization: org});
 role_applies_to_resource(role: social::Role{organization: org}, resource: social::Role{organization: org});
+role_applies_to_resource(_role, resource: HttpRequest);
 
 # built-in roles
-role_allow(_user: social::User, _role: social::Role{name: "Moderator", custom: false}, "delete", _resource: social::Post);
-role_allow(_user: social::User, _role: social::Role{name: "Moderator", custom: false}, _action, resource: social::Role);
-role_allow(_user: social::User, _role: social::Role{name: "Moderator", custom: false}, "GET", "roles");
+role_allow(_user: social::User, _role: social::Role{name: "Admin", custom: false}, "delete", _resource: social::Post);
+role_allow(_user: social::User, _role: social::Role{name: "Admin", custom: false}, _action, _resource: social::Role);
+role_allow(_user: social::User, _role: social::Role{name: "Admin", custom: false}, "GET", _resource: HttpRequest{path: "/roles/"});
 
 # custom roles
 resource_kind(_resource: social::Role, "role");
 resource_kind(_resource: social::Post, "post");
-
 role_allow(_user: social::User, role: social::Role, action: String, resource) if
     role.custom and
     permission = role.permissions.all() and

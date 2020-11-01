@@ -14,14 +14,12 @@ def load_seed_users(apps, schema_editor):
     monstersinc.save()
 
     Role = apps.get_model("social", "Role")
-    oso_moderator = Role.objects.create(
-        name="Moderator", custom=False, organization=oso
+    oso_admin = Role.objects.create(name="Admin", custom=False, organization=oso)
+    oso_admin.save()
+    monsters_admin = Role.objects.create(
+        name="Admin", custom=False, organization=monstersinc
     )
-    oso_moderator.save()
-    monsters_moderator = Role.objects.create(
-        name="Moderator", custom=False, organization=monstersinc
-    )
-    monsters_moderator.save()
+    monsters_admin.save()
 
     User = apps.get_model("social", "User")
     user = User.objects.create(
@@ -38,7 +36,7 @@ def load_seed_users(apps, schema_editor):
     user.organization = oso
     user.save()
 
-    oso_moderator.users.add(user)
+    oso_admin.users.add(user)
 
     user = User.objects.create(
         username="leina",
@@ -64,7 +62,7 @@ def load_seed_users(apps, schema_editor):
     user.organization = monstersinc
     user.save()
 
-    monsters_moderator.users.add(user)
+    monsters_admin.users.add(user)
 
 
 class Migration(migrations.Migration):

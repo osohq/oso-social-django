@@ -1,11 +1,12 @@
 from django.shortcuts import render
-from django.http import HttpResponseNotAllowed, HttpResponseRedirect
+from django.http import HttpResponseNotAllowed, HttpResponseRedirect, HttpRequest
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 
 from django_oso.auth import authorize, authorize_model
 from django_oso.oso import Oso
+from django_oso.decorators import authorize_request
 
 from .models import Post, Role, Permission
 from .forms import PostForm, RoleForm, PermissionForm
@@ -27,6 +28,7 @@ def list_posts(request):
 
 
 @login_required
+@authorize_request
 def list_roles(request):
     authorized_roles = []
     for role in Role.objects.all():
@@ -41,7 +43,6 @@ def list_roles(request):
 
 @login_required
 def new_post(request):
-
     if request.method == "POST":
         form = PostForm(request.POST)
         post = form.save(commit=False)
@@ -148,5 +149,7 @@ def me(request):
 
 def oso_context_processor(request):
     """Pass authZ context into templates."""
-    is_moderator = Oso.is_allowed(request.user, "GET", "roles")
-    return {"is_moderator": is_moderator}
+    roles_request = HttpRequest()
+    roles_request.path = "/roles/"
+    can_view_roles = Oso.is_allowed(request.user, "GET", roles_request)
+    return {"can_view_roles": can_view_roles}

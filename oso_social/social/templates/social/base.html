@@ -15,7 +15,7 @@
         <a href={% url 'login' %}>Login</a>
         <a href={% url 'index' %}>Feed</a>
         <a href={% url 'me' %}>Profile</a>
-        {% if is_moderator %}
+        {% if can_view_roles %}
         <a href={% url 'list_roles' %}>Roles</a>
         {% endif %}
         {% block contents %}
