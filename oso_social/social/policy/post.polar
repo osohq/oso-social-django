@@ -4,12 +4,15 @@ allow(user, action, resource) if
     role_applies_to_resource(role, resource) and
     role_allow(user, role, action, resource);
 
-## RBAC
+## Role-based rules
 
 # Get a user's roles
 user_in_role(user: social::User, role) if
     role = user.role_set.all();
 
+# Specify that a role applies to a resource
+# In this case, a role applies to a Post or Role resource if it is in the same organization as the resource;
+# Any role may apply to an HttpRequest resource.
 role_applies_to_resource(role: social::Role{organization: org}, resource: social::Post{organization: org});
 role_applies_to_resource(role: social::Role{organization: org}, resource: social::Role{organization: org});
 role_applies_to_resource(_role, resource: HttpRequest);
@@ -29,18 +32,18 @@ role_allow(_user: social::User, role: social::Role, action: String, resource) if
     resource_kind(resource, kind) and
     permission.get_action() = action;
 
-## ALLOW RULES
+## ALLOW RULES (attribute-based)
 
-# Allow anyone to view any public posts.
+# Allow anyone to view any public posts within their organization.
 allow(actor: social::User, "read", post: social::Post) if
     post.access_level = social::Post.ACCESS_PUBLIC and
     actor.organization = post.organization;
 
-# Allow a user to manage their posts.
+# Allow a user to manage their own posts.
 allow(actor: social::User, _action, post: social::Post) if
     post.created_by = actor;
 
-# A user is allowed to create/delete a permission if they are allowed to update the role
+# A user is allowed to create/delete a permission if they are allowed to update the role.
 allow(actor: social::User, action, permission: social::Permission) if
     action in ["create", "delete"] and
     allow(actor, "update", permission.role);
