@@ -15,7 +15,7 @@ role_applies_to_resource(role: social::Role{organization: org}, resource: social
 role_applies_to_resource(_role, resource: HttpRequest);
 
 # built-in roles
-role_allow(_user: social::User, _role: social::Role{name: "Admin", custom: false}, "delete", _resource: social::Post);
+role_allow(_user: social::User, _role: social::Role{name: "Admin", custom: false}, _action, _resource: social::Post);
 role_allow(_user: social::User, _role: social::Role{name: "Admin", custom: false}, _action, _resource: social::Role);
 role_allow(_user: social::User, _role: social::Role{name: "Admin", custom: false}, "GET", _resource: HttpRequest{path: "/roles/"});
 
