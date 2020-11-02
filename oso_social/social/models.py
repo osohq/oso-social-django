@@ -81,8 +81,8 @@ class Permission(AuthorizedModel):
     def get_action(self):
         return dict(self.ACTIONS)[self.action]
 
-    def get_resource(self):
+    def get_resource_kind(self):
         return dict(self.RESOURCES)[self.resource]
 
     def __str__(self):
-        return f"{self.role} | {self.get_action()} on {self.get_resource()}"
+        return f"{self.role} | {self.get_action()} on {self.get_resource_kind()}"

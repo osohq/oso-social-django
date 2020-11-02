@@ -13,9 +13,9 @@ user_in_role(user: social::User, role) if
 # Specify that a role applies to a resource
 # In this case, a role applies to a Post or Role resource if it is in the same organization as the resource;
 # Any role may apply to an HttpRequest resource.
-role_applies_to_resource(role: social::Role{organization: org}, resource: social::Post{organization: org});
-role_applies_to_resource(role: social::Role{organization: org}, resource: social::Role{organization: org});
-role_applies_to_resource(_role, resource: HttpRequest);
+role_applies_to_resource(_role: social::Role{organization: org}, _resource: social::Post{organization: org});
+role_applies_to_resource(_role: social::Role{organization: org}, _resource: social::Role{organization: org, custom: true});
+role_applies_to_resource(_role, _resource: HttpRequest);
 
 # built-in roles
 role_allow(_user: social::User, _role: social::Role{name: "Admin", custom: false}, _action, _resource: social::Post);
@@ -27,8 +27,9 @@ resource_kind(_resource: social::Role, "role");
 resource_kind(_resource: social::Post, "post");
 role_allow(_user: social::User, role: social::Role, action: String, resource) if
     role.custom and
+    # Get the role's permissions (social::Permission in models.py)
     permission = role.permissions.all() and
-    kind = permission.get_resource() and
+    kind = permission.get_resource_kind() and
     resource_kind(resource, kind) and
     permission.get_action() = action;
 
