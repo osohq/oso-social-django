@@ -1,4 +1,4 @@
-## BUILT-IN RULES
+## TOP-LEVEL ROLE ALLOW RULE
 allow(user, action, resource) if
     user_in_role(user, role) and
     role_applies_to_resource(role, resource) and
