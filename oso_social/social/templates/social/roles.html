@@ -17,7 +17,7 @@
         <ul>
             {% for permission in role.permissions.all %}
             <li>
-            {{ permission.get_action }} on {{ permission.get_resource_kind }}
+            {{ permission.get_action_display }} on {{ permission.get_resource_display }}
                 <form action="{% url 'delete_permission' role_id=role.id %} " method="post">
                     <input type="hidden" name="role_id" value={{role.id}} />
                     <input type="hidden" name="permission_id" value={{permission.id}} />

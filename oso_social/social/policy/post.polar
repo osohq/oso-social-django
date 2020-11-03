@@ -29,9 +29,9 @@ role_allow(_user: social::User, role: social::Role, action: String, resource) if
     role.custom and
     # Get the role's permissions (social::Permission in models.py)
     permission = role.permissions.all() and
-    kind = permission.get_resource_kind() and
+    kind = permission.get_resource_display() and
     resource_kind(resource, kind) and
-    permission.get_action() = action;
+    permission.get_action_display() = action;
 
 ## ALLOW RULES (attribute-based)
 
