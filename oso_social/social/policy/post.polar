@@ -8,7 +8,7 @@ allow(user, action, resource) if
 
 # Get a user's roles
 user_in_role(user: social::User, role) if
-    role = user.role_set.all();
+    role in user.role_set.all();
 
 # Specify that a role applies to a resource
 # In this case, a role applies to a Post or Role resource if it is in the same organization as the resource;
@@ -28,7 +28,7 @@ resource_kind(_resource: social::Post, "post");
 role_allow(_user: social::User, role: social::Role, action: String, resource) if
     role.custom and
     # Get the role's permissions (social::Permission in models.py)
-    permission = role.permissions.all() and
+    permission in role.permissions.all() and
     kind = permission.get_resource_display() and
     resource_kind(resource, kind) and
     permission.get_action_display() = action;

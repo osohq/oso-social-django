@@ -46,9 +46,10 @@ def new_post(request):
     if request.method == "POST":
         form = PostForm(request.POST)
         post = form.save(commit=False)
-        post.created_by = (
-            request.user._wrapped if hasattr(request.user, "_wrapped") else request.user
-        )
+        # post.created_by = (
+        #     request.user._wrapped if hasattr(request.user, "_wrapped") else request.user
+        # )
+        post.created_by = request.user
         post.organization = request.user.organization
 
         authorize(request, post, action="create")
@@ -79,9 +80,10 @@ def new_role(request):
         form = RoleForm(request.POST, organization=request.user.organization)
         role = form.save(commit=False)
 
-        role.created_by = (
-            request.user._wrapped if hasattr(request.user, "_wrapped") else request.user
-        )
+        # role.created_by = (
+        #     request.user._wrapped if hasattr(request.user, "_wrapped") else request.user
+        # )
+        role.created_by = request.user
         role.organization = request.user.organization
 
         authorize(request, role, action="create")
